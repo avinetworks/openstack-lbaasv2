@@ -2,11 +2,11 @@ import logging
 import netaddr
 import uuid
 import copy
-from avi_lbaasv2.avi_api import ObjectNotFound
-from avi_lbaasv2.avi_generic import (
+from avi_lbaasv2.avi_api.avi_api import ObjectNotFound
+from avi_lbaasv2.common.avi_generic import AVI_DELIM
+from avi_lbaasv2.common.avi_generic import (
     os2avi_uuid, pool_update_avi_vs_pool, get_vrf_context,
     form_vsvip_uuid, update_vsvip)
-from avi_lbaasv2.avi_generic import AVI_DELIM
 
 LOG = logging.getLogger(__name__)
 

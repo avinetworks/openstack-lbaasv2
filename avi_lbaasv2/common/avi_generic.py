@@ -1,6 +1,6 @@
 import netaddr
 import uuid
-from avi_lbaasv2.avi_api import ObjectNotFound
+from avi_lbaasv2.avi_api.avi_api import ObjectNotFound
 
 AVI_DELIM = '-'
 

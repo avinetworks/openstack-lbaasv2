@@ -1,9 +1,7 @@
 import logging
 
-from avi_lbaasv2.avi_api import ApiSession
-from avi_lbaasv2.avi_api import ObjectNotFound
-from avi_lbaasv2.avi_api import APIError
-from avi_lbaasv2.avi_api import ApiResponse
+from avi_lbaasv2.avi_api.avi_api import (ApiSession, ObjectNotFound,
+                                         APIError, ApiResponse)
 
 
 LOG = logging.getLogger(__name__)

@@ -6,17 +6,17 @@ import time
 from oslo_config import cfg
 from oslo_utils import excutils
 
-from avi_lbaasv2.avi_client import AviClient
-from avi_lbaasv2.avi_transform import AviHelper
-from avi_lbaasv2.avi_api import APIError
-from avi_lbaasv2.avi_generic import (
+from avi_lbaasv2.avi_api.avi_api import APIError
+from avi_lbaasv2.common.avi_client import AviClient
+from avi_lbaasv2.common.avi_generic import DriverObjFunctions
+from avi_lbaasv2.common.avi_generic import (
     update_loadbalancer_obj,
     listener_update_avi_vs, listener_delete_avi_vs,
     hm_update_avi_hm, hm_delete_avi_hm,
     pool_update_avi_vs_pool, pool_delete_avi_vs_pool,
     member_op_avi_pool, hm_op_avi_pool)
-from avi_lbaasv2.avi_generic import DriverObjFunctions
-from avi_lbaasv2 import avi_config
+from avi_lbaasv2.common.avi_transform import AviHelper
+from avi_lbaasv2.config import avi_config
 
 from neutron_lbaas.services.loadbalancer import constants as lb_constants
 from neutron_lbaas.drivers import driver_base

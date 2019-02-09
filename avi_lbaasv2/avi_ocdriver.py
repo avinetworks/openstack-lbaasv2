@@ -14,20 +14,23 @@ from svc_monitor.config_db import (LoadbalancerSM, LoadbalancerListenerSM,
                                    LoadbalancerPoolSM, LoadbalancerMemberSM)
 # from svc_monitor.config_db import HealthMonitorSM
 from svc_monitor.config_db import VirtualMachineInterfaceSM
-from avi_lbaasv2.avi_octransform import (transform_loadbalancer_obj,
-                                         transform_listener_obj,
-                                         transform_member_obj,
-                                         transform_hm_obj, transform_pool_obj,
-                                         IdObj, OCLog)
-from avi_lbaasv2.avi_generic import (update_loadbalancer_obj,
-                                     listener_update_avi_vs,
-                                     listener_delete_avi_vs, hm_update_avi_hm,
-                                     hm_delete_avi_hm, pool_update_avi_vs_pool,
-                                     pool_delete_avi_vs_pool)
-from avi_lbaasv2.avi_generic import DriverObjFunctions
-from avi_lbaasv2.avi_client import AviClient
-from avi_lbaasv2.avi_transform import AviHelper
-from avi_lbaasv2.avi_config import AVI_OPTS
+from avi_lbaasv2.common.avi_client import AviClient
+from avi_lbaasv2.common.avi_generic import (update_loadbalancer_obj,
+                                            listener_update_avi_vs,
+                                            listener_delete_avi_vs,
+                                            hm_update_avi_hm,
+                                            hm_delete_avi_hm,
+                                            pool_update_avi_vs_pool,
+                                            pool_delete_avi_vs_pool)
+from avi_lbaasv2.common.avi_generic import DriverObjFunctions
+from avi_lbaasv2.common.avi_octransform import (transform_loadbalancer_obj,
+                                                transform_listener_obj,
+                                                transform_member_obj,
+                                                transform_hm_obj,
+                                                transform_pool_obj,
+                                                IdObj, OCLog)
+from avi_lbaasv2.common.avi_transform import AviHelper
+from avi_lbaasv2.config.avi_config import AVI_OPTS
 
 
 LOG = None
