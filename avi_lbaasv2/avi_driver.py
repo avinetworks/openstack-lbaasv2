@@ -14,7 +14,8 @@ from avi_lbaasv2.common.avi_generic import (
     listener_update_avi_vs, listener_delete_avi_vs,
     hm_update_avi_hm, hm_delete_avi_hm,
     pool_update_avi_vs_pool, pool_delete_avi_vs_pool,
-    member_op_avi_pool, hm_op_avi_pool)
+    member_op_avi_pool, hm_op_avi_pool, get_vrf_context,
+    os2avi_uuid)
 from avi_lbaasv2.common.avi_transform import AviHelper
 from avi_lbaasv2.config import avi_config
 
