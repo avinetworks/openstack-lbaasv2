@@ -77,11 +77,21 @@ class LoadBalancerManager(driver_base.BaseLoadBalancerManager):
         self._detect_plugin()
         LOG.debug("Avi driver create lb: %s", repr(lb))
         flvid = getattr(lb, 'flavor_id', None)
+        metainfo = {}
         if flvid:
             metainfo = self.driver.objfns.get_metainfo_from_flavor(
                 context, flvid)
             LOG.info("LB metainfo from flavor %s", metainfo)
-        # Nothing much to do on a LB creation; we need at least one listener
+
+        if (getattr(self.driver.conf, 'vrf_context_per_subnet', False) or
+                (metainfo and metainfo.get('vrf_context_per_subnet', False))):
+            # Create VRF Context if doesn't exist
+            avi_client = self.driver.client
+            avi_tenant_uuid = os2avi_uuid("tenant", lb.tenant_id)
+            get_vrf_context(lb.vip_subnet_id, self.driver.conf.cloud,
+                            avi_tenant_uuid, avi_client,
+                            create=True)
+
         self.successful_completion(context, lb)
 
     def update(self, context, old_lb, lb):
@@ -381,8 +391,8 @@ class NeutronObjFunctions(DriverObjFunctions):
     def listeners_get(self, context, lb, pool=None):
         listeners = []
         for ll in lb.listeners:
-            if not pool or pool.id == ll.default_pool_id:
-                obj = self.listener_get(context, ll.id)
+            obj = self.listener_get(context, ll.id)
+            if not pool or pool.id == obj.default_pool_id:
                 listeners.append(obj)
         return listeners
 

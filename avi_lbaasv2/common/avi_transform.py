@@ -144,12 +144,34 @@ class AviHelper(object):
 
             avi_pool['placement_networks'] = plcmntnws
 
-        if getattr(self.avicfg, 'vrf_context_per_subnet', False):
-            subnet_uuid = driver.objfns.get_vip_subnet_from_listener(
-                context, os_pool.listener.id)
+        metainfo = {}
+        lb = None
+        if getattr(os_pool, 'loadbalancer_id', None):
+            lb = driver.objfns.loadbalancer_get(context,
+                                                os_pool.loadbalancer_id)
+        else:
+            ll = driver.objfns.listener_get(context, os_pool.listener.id)
+            lb = driver.objfns.loadbalancer_get(context, ll.loadbalancer_id)
+
+        if lb:
+            flvid = getattr(lb, 'flavor_id', None)
+            if flvid:
+                metainfo = driver.objfns.get_metainfo_from_flavor(
+                    context, flvid)
+
+        if (getattr(self.avicfg, 'vrf_context_per_subnet', False) or
+                (metainfo and metainfo.get('vrf_context_per_subnet', False))):
+            subnet_uuid = None
+            if lb:
+                subnet_uuid = lb.vip_subnet_id
+            else:
+                subnet_uuid = driver.objfns.get_vip_subnet_from_listener(
+                    context, os_pool.listener.id)
+
             vrf_context = get_vrf_context(subnet_uuid, self.avicfg.cloud,
                                           avi_tenant_uuid, avi_client)
-            avi_pool['vrf_ref'] = vrf_context['url']
+            if vrf_context:
+                avi_pool['vrf_ref'] = vrf_context['url']
 
         # add healthmonitor
         avi_pool["health_monitor_refs"] = []
@@ -369,19 +391,8 @@ class AviHelper(object):
         avi_vs['cloud_ref'] = ("/api/cloud?name=%s" % self.avicfg.cloud)
         se_group_ref = None
         vrf_context_ref = None
-        if getattr(self.avicfg, 'vrf_context_per_subnet', False):
-            subnet_uuid = driver.objfns.get_vip_subnet_from_listener(
-                context, os_listener.id)
-            vrf_context = get_vrf_context(subnet_uuid, self.avicfg.cloud,
-                                          avi_tenant_uuid, avi_client,
-                                          create=False)
-            if vrf_context:
-                vrf_context_ref = vrf_context['url']
-
-            # Expect one-arm mode only when VRF Context per subnet
-            avi_vs['ign_pool_net_reach'] = True
-
         flvid = getattr(os_loadbalancer, 'flavor_id', None)
+        metainfo = {}
         if flvid:
             metainfo = driver.objfns.get_metainfo_from_flavor(
                 context, flvid)
@@ -394,6 +405,17 @@ class AviHelper(object):
 
         if vrf_context_ref:
             avi_vs['vrf_context_ref'] = vrf_context_ref
+
+        if (getattr(self.avicfg, 'vrf_context_per_subnet', False) or
+                (metainfo and metainfo.get('vrf_context_per_subnet', False))):
+            lb = driver.objfns.loadbalancer_get(context, os_loadbalancer.id)
+            vrf_context = get_vrf_context(lb.vip_subnet_id, self.avicfg.cloud,
+                                          avi_tenant_uuid, avi_client)
+            if vrf_context:
+                avi_vs['vrf_context_ref'] = vrf_context['url']
+
+            # Expect one-arm mode only when VRF Context per subnet
+            avi_vs['ign_pool_net_reach'] = True
 
         # use listener's uuid
         avi_uuid = os2avi_uuid("virtualservice", os_listener.id)

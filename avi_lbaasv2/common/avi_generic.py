@@ -77,16 +77,6 @@ def loadbalancer_update_avi_vsvip(driver, old_lb, lb):
                          res)
 
 
-def create_vrf_context(driver, context, listener, avi_tenant_uuid):
-    avi_client = driver.client
-    subnet_uuid = driver.objfns.get_vip_subnet_from_listener(context,
-                                                             listener.id)
-    vrf_context = get_vrf_context(subnet_uuid, driver.conf.cloud,
-                                  avi_tenant_uuid, avi_client,
-                                  create=True)
-    return vrf_context
-
-
 def listener_update_avi_vs(driver, context, listener, op):
     '''
     :param listener:
@@ -105,11 +95,6 @@ def listener_update_avi_vs(driver, context, listener, op):
         avi_vs['type'] = 'VS_TYPE_NORMAL'
     # create/update parent VS
     if op == 'create':
-        if getattr(driver.conf, 'vrf_context_per_subnet', False):
-            vrf_context = create_vrf_context(driver, context, listener,
-                                             avi_tenant_uuid)
-            avi_vs['vrf_context_ref'] = vrf_context['url']
-
         pvs = client.create('virtualservice', avi_vs, avi_tenant_uuid)
     else:  # if op == 'update':
         avi_vs.pop('vrf_context_ref', None)  # Don't update VRF Context
