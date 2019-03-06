@@ -279,7 +279,8 @@ def member_op_avi_pool(driver, context, member, action="add"):
     for avi_pool_id in avi_pool_uuids:
         client.patch('pool', avi_pool_id, data, avi_tenant_uuid,
                      ignore_non_existent_object=(action == "delete"),
-                     ignore_non_existent_tenant=(action == "delete"))
+                     ignore_non_existent_tenant=(action == "delete"),
+                     ignore_existing_object=(action == "add"))
 
 
 def hm_op_avi_pool(driver, context, hm, pool, action="add"):
@@ -373,6 +374,14 @@ def get_vrf_context(subnet_uuid, cloud, avi_tenant_uuid, avi_client,
         return {}
 
     vrf_context = form_avi_vrf_context_obj(subnet_uuid, cloud)
-    avi_client.create('vrfcontext', vrf_context, avi_tenant_uuid)
+    try:
+        avi_client.create('vrfcontext', vrf_context, avi_tenant_uuid)
+    except Exception as e:
+        if (e.rsp.status_code == 409 and
+                'already exists' in e.rsp.content.lower()):
+            pass
+        else:
+            raise e
+
     vrf_context = avi_client.get('vrfcontext', uuid, avi_tenant_uuid)
     return vrf_context
