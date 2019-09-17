@@ -167,6 +167,11 @@ class OpencontrailObjFunctions(DriverObjFunctions):
         self.driver = driver
         self.barbican_clients = dict()
 
+    # loadbalancer
+    def loadbalancer_get(self, context, lb_id):
+        obj = transform_loadbalancer_obj(self.driver, lb_id, None)
+        return obj
+
     # pool
     def pool_get(self, context, pool_id):
         obj = transform_pool_obj(self.driver, pool_id, None)
