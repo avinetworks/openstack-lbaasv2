@@ -26,7 +26,6 @@ setup(
     version=AVI_PIP_VERSION,
     description='Avi OpenStack LBaaS v2.0 Driver',
     long_description=long_description,
-    # long_description_content_type='text/markdown',
     long_description_content_type='text/x-rst',
     url='http://www.avinetworks.com',
     author='Avi Networks',
@@ -43,7 +42,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
-    packages=find_packages(exclude=['tests', ]),
+    packages=find_packages(exclude=['tests', 'avi_octavia_driver', ]),
     install_requires=[],
     license='LICENSE',
     keywords='avi lbaasv2 openstack loadbalancer'
