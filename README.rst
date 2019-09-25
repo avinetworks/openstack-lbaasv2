@@ -28,4 +28,4 @@ Avi LBaaSv2 Driver version compatibility Matrix
 
 Known Issues:
 *************
-- `Not able to delete OpenStack network after LBaaSv2 resources are deleted <https://github.com/anantpatil/openstack-lbaasv2/blob/fix-readme/docs/Cleaning-Up-LBaaSv2-Resources.rst>`_
+- `Not able to delete OpenStack network after LBaaSv2 resources are deleted <https://github.com/avinetworks/openstack-lbaasv2/blob/master/docs/Cleaning-Up-LBaaSv2-Resources.rst>`_
