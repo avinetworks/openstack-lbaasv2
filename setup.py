@@ -8,7 +8,7 @@ from io import open
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-with open('README.md', encoding='utf-8') as f:
+with open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
 if os.path.exists("./VERSION"):
@@ -26,7 +26,8 @@ setup(
     version=AVI_PIP_VERSION,
     description='Avi OpenStack LBaaS v2.0 Driver',
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    # long_description_content_type='text/markdown',
+    long_description_content_type='text/x-rst',
     url='http://www.avinetworks.com',
     author='Avi Networks',
     author_email='support@avinetworks.com',
@@ -42,7 +43,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
-    packages=find_packages(exclude=['docs', 'tests']),
+    packages=find_packages(exclude=['tests', ]),
     install_requires=[],
     license='LICENSE',
     keywords='avi lbaasv2 openstack loadbalancer'
