@@ -1,11 +1,10 @@
-*************************************************************
+#############################################################
 Cleaning up OpenStack Resources when using Avi LBaaSv2 driver
-*************************************************************
+#############################################################
 
 
-*****
 Issue
-*****
+=====
 Upon deleting LBaaSv2 resources realized using Avi LBaaSv2 driver, Avi
 Controller leaves some of the network ports in OpenStack network for
 some time and does not delete them immediately. This causes a failure in
@@ -13,9 +12,8 @@ deleting the OpenStack network immediately after deleting the LBaaSv2
 resources.
 
 
-**********
 Root Cause
-**********
+==========
 Avi Controller uses garbage collection mechanism to delete the network
 ports from OpenStack environment. Garbage collection is an independent
 background process, and Avi object delete APIs don’t wait for GC to
@@ -52,9 +50,8 @@ reasons:
    template. It is fixed in 18.2.6.
 
 
-********
 Solution
-********
+========
 The client deleting the OpenStack LBaaSv2 resource needs to retry the
 deletion of OpenStack network in case it fails due to “One or more ports
 have an IP allocation from this subnet.”
