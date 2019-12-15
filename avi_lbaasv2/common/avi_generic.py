@@ -70,8 +70,8 @@ def loadbalancer_update_avi_vsvip(driver, old_lb, lb):
     except ObjectNotFound:
         return
 
-    res = update_vsvip(lb, avi_client, avi_tenant_uuid, driver.conf.cloud,
-                       vsvip=vsvip)
+    res = update_vsvip(lb, avi_client, driver.conf.cloud,
+                       avi_vsvip=vsvip)
     if res:
         driver.log.debug("Updated vsvip[%s] response: %s ", vsvip['name'],
                          res)
@@ -338,24 +338,39 @@ def form_avi_vrf_context_obj(subnet_uuid, cloud):
     return vrf_context
 
 
-def update_vsvip(os_lb, avi_client, avi_tenant_uuid, cloud, vsvip=None,
+def update_vsvip(os_lb, avi_client, cloud, avi_vsvip=None,
                  vrf_context_ref=None):
     create = False
-    if not vsvip:
-        vsvip = form_avi_vsvip_obj(os_lb, cloud,
-                                   vrf_context_ref=vrf_context_ref)
+    update = False
+    avi_tenant_uuid = os2avi_uuid("tenant", os_lb.tenant_id)
+    if not avi_vsvip:
+        avi_vsvip = form_avi_vsvip_obj(os_lb, cloud,
+                                       vrf_context_ref=vrf_context_ref)
         create = True
 
     lb_name = os_lb.name or os_lb.vip_address
     vsvip_name = "vsvip-" + lb_name
-    vsvip['name'] = vsvip_name
-    vsvip['vip'][0]['enabled'] = os_lb.admin_state_up
+    if avi_vsvip.get('name', '') != vsvip_name:
+        avi_vsvip['name'] = vsvip_name
+        update = True
+
+    if avi_vsvip['vip'][0].get('enabled', None) != os_lb.admin_state_up:
+        avi_vsvip['vip'][0]['enabled'] = os_lb.admin_state_up
+        update = True
+
     if create:
-        res = avi_client.create("vsvip", vsvip, avi_tenant_uuid)
-    else:
-        res = avi_client.update("vsvip", vsvip['uuid'], vsvip, avi_tenant_uuid)
+        res = avi_client.create("vsvip", avi_vsvip, avi_tenant_uuid)
+    elif update:
+        res = avi_client.update("vsvip", avi_vsvip['uuid'], avi_vsvip,
+                                avi_tenant_uuid)
 
     return res
+
+
+def delete_vsvip(os_lb, avi_client):
+    vsvip_uuid = form_vsvip_uuid(os_lb.id)
+    avi_tenant_uuid = os2avi_uuid("tenant", os_lb.tenant_id)
+    avi_client.delete("vsvip", vsvip_uuid, avi_tenant_uuid)
 
 
 def get_vrf_context(subnet_uuid, cloud, avi_tenant_uuid, avi_client,

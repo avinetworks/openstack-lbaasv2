@@ -6,7 +6,7 @@ from avi_lbaasv2.avi_api.avi_api import ObjectNotFound
 from avi_lbaasv2.common.avi_generic import AVI_DELIM
 from avi_lbaasv2.common.avi_generic import (
     os2avi_uuid, pool_update_avi_vs_pool, get_vrf_context,
-    form_vsvip_uuid, update_vsvip)
+    form_vsvip_uuid)
 
 LOG = logging.getLogger(__name__)
 
@@ -424,8 +424,7 @@ class AviHelper(object):
         # enable it only if listener is up
         avi_vs['enabled'] = os_listener.admin_state_up
         vsvip = self.get_avi_vsvip(os_loadbalancer, avi_client,
-                                   avi_tenant_uuid,
-                                   vrf_context_ref=vrf_context_ref)
+                                   avi_tenant_uuid)
         avi_vs["vsvip_ref"] = vsvip["url"]
 
         # add service
@@ -504,15 +503,7 @@ class AviHelper(object):
         avi_persist['app_cookie_persistence_profile'] = appck_profile
         return avi_persist
 
-    def get_avi_vsvip(self, os_lb, avi_client, avi_tenant_uuid,
-                      vrf_context_ref=None):
+    def get_avi_vsvip(self, os_lb, avi_client, avi_tenant_uuid):
         vsvip_uuid = form_vsvip_uuid(os_lb.id)
-        try:
-            vsvip = avi_client.get("vsvip", vsvip_uuid, avi_tenant_uuid)
-        except ObjectNotFound:
-            self.log.warn("VsVip %s not found; creating", vsvip_uuid)
-            update_vsvip(os_lb, avi_client, avi_tenant_uuid, self.avicfg.cloud,
-                         vrf_context_ref=vrf_context_ref)
-            vsvip = avi_client.get("vsvip", vsvip_uuid, avi_tenant_uuid)
-
+        vsvip = avi_client.get("vsvip", vsvip_uuid, avi_tenant_uuid)
         return vsvip

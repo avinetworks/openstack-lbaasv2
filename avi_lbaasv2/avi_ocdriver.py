@@ -21,7 +21,8 @@ from avi_lbaasv2.common.avi_generic import (update_loadbalancer_obj,
                                             hm_update_avi_hm,
                                             hm_delete_avi_hm,
                                             pool_update_avi_vs_pool,
-                                            pool_delete_avi_vs_pool)
+                                            pool_delete_avi_vs_pool,
+                                            update_vsvip, delete_vsvip)
 from avi_lbaasv2.common.avi_generic import DriverObjFunctions
 from avi_lbaasv2.common.avi_octransform import (transform_loadbalancer_obj,
                                                 transform_listener_obj,
@@ -243,8 +244,11 @@ class OpencontrailAviLoadbalancerDriver(
 
     @cc_trace
     def create_loadbalancer(self, loadbalancer):
-        # Nothing much to do on a LB creation; we need at least one listener
-        pass
+        # create vsvip
+        lb = transform_loadbalancer_obj(self, loadbalancer['id'], loadbalancer)
+        avi_client = self.client
+        update_vsvip(lb, avi_client,
+                     cloud=self.conf.cloud)
 
     @cc_trace
     def update_loadbalancer(self, old_loadbalancer, loadbalancer):
@@ -264,8 +268,9 @@ class OpencontrailAviLoadbalancerDriver(
 
     @cc_trace
     def delete_loadbalancer(self, loadbalancer):
-        # Nothing much to do
-        pass
+        # Delete vsvip
+        lb = transform_loadbalancer_obj(self, loadbalancer['id'], loadbalancer)
+        delete_vsvip(lb, self.client)
 
     @cc_trace
     def create_listener(self, listener):

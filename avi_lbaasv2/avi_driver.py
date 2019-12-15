@@ -15,7 +15,7 @@ from avi_lbaasv2.common.avi_generic import (
     hm_update_avi_hm, hm_delete_avi_hm,
     pool_update_avi_vs_pool, pool_delete_avi_vs_pool,
     member_op_avi_pool, hm_op_avi_pool, get_vrf_context,
-    os2avi_uuid)
+    os2avi_uuid, update_vsvip, delete_vsvip)
 from avi_lbaasv2.common.avi_transform import AviHelper
 from avi_lbaasv2.config import avi_config
 
@@ -84,15 +84,20 @@ class LoadBalancerManager(driver_base.BaseLoadBalancerManager):
                 context, flvid)
             LOG.info("LB metainfo from flavor %s", metainfo)
 
+        vrf_context_ref = None
         if (getattr(self.driver.conf, 'vrf_context_per_subnet', False) or
                 (metainfo and metainfo.get('vrf_context_per_subnet', False))):
             # Create VRF Context if doesn't exist
             avi_client = self.driver.client
             avi_tenant_uuid = os2avi_uuid("tenant", lb.tenant_id)
-            get_vrf_context(lb.vip_subnet_id, self.driver.conf.cloud,
-                            avi_tenant_uuid, avi_client,
-                            create=True)
+            vrf_context = get_vrf_context(lb.vip_subnet_id,
+                                          self.driver.conf.cloud,
+                                          avi_tenant_uuid, avi_client,
+                                          create=True)
+            vrf_context_ref = vrf_context['url']
 
+        update_vsvip(lb, avi_client, cloud=self.driver.conf.cloud,
+                     vrf_context_ref=vrf_context_ref)
         self.successful_completion(context, lb)
 
     def update(self, context, old_lb, lb):
@@ -113,13 +118,15 @@ class LoadBalancerManager(driver_base.BaseLoadBalancerManager):
                                                                vportid)
                 LOG.debug('deleted LB vip port %s', vportid)
 
+        avi_client = self.driver.client
+        delete_vsvip(lb, avi_client)
         # AV-35351: Can't determine how much time it would take to
         # delete all the associated ports for this load balancer. It
         # depends on types of VSes (SSL etc) and number of VSes.
         # All ports will be deleted _eventually_; no need to
         # wait for them.
         # LOG.info('await ports cleanup for Avi VSes')
-        time.sleep(2)
+        time.sleep(30)
         self.successful_completion(context, lb, delete=True)
 
     def refresh(self, context, lb):
