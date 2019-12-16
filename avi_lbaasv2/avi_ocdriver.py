@@ -271,6 +271,8 @@ class OpencontrailAviLoadbalancerDriver(
         # Delete vsvip
         lb = transform_loadbalancer_obj(self, loadbalancer['id'], loadbalancer)
         delete_vsvip(lb, self.client)
+        # Wait for ports cleanups
+        time.sleep(30)
 
     @cc_trace
     def create_listener(self, listener):
@@ -338,7 +340,8 @@ class OpencontrailAviLoadbalancerDriver(
     @cc_trace
     def create_pool_health_monitor(self, health_monitor, pool_id):
         hm = transform_hm_obj(self, health_monitor['id'], health_monitor)
-        hm_update_avi_hm(self, None, hm)
+        if hm:
+            hm_update_avi_hm(self, None, hm)
         # create_pool_health_monitor - update_pool
 
     @cc_trace
@@ -350,7 +353,8 @@ class OpencontrailAviLoadbalancerDriver(
                                    health_monitor, pool_id):
         # mostly an update_pool_health_monitor will not be invoked
         hm = transform_hm_obj(self, health_monitor['id'], health_monitor)
-        hm_update_avi_hm(self, None, hm)
+        if hm:
+            hm_update_avi_hm(self, None, hm)
         # update_hm - create_pool_health_monitor + update pool is triggered
 
     @cc_trace

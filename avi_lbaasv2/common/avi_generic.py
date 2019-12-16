@@ -57,11 +57,6 @@ def update_loadbalancer_obj(driver, context, old_lb, lb):
 
 
 def loadbalancer_update_avi_vsvip(driver, old_lb, lb):
-    if (lb.name == old_lb.name and
-            lb.admin_state_up == old_lb.admin_state_up):
-        # nothing changed to update remote
-        return
-
     avi_client = driver.client
     vsvip_uuid = form_vsvip_uuid(lb.id)
     avi_tenant_uuid = os2avi_uuid("tenant", lb.tenant_id)
@@ -358,6 +353,7 @@ def update_vsvip(os_lb, avi_client, cloud, avi_vsvip=None,
         avi_vsvip['vip'][0]['enabled'] = os_lb.admin_state_up
         update = True
 
+    res = None
     if create:
         res = avi_client.create("vsvip", avi_vsvip, avi_tenant_uuid)
     elif update:
