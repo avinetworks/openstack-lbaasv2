@@ -358,6 +358,12 @@ def update_vsvip(os_lb, avi_client, avi_tenant_uuid, cloud, vsvip=None,
     return res
 
 
+def delete_vsvip(os_lb, avi_client):
+    vsvip_uuid = form_vsvip_uuid(os_lb.id)
+    avi_tenant_uuid = os2avi_uuid("tenant", os_lb.tenant_id)
+    avi_client.delete("vsvip", vsvip_uuid, avi_tenant_uuid)
+
+
 def get_vrf_context(subnet_uuid, cloud, avi_tenant_uuid, avi_client,
                     create=False):
     uuid = form_vrf_context_uuid(subnet_uuid)

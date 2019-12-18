@@ -15,7 +15,7 @@ from avi_lbaasv2.common.avi_generic import (
     hm_update_avi_hm, hm_delete_avi_hm,
     pool_update_avi_vs_pool, pool_delete_avi_vs_pool,
     member_op_avi_pool, hm_op_avi_pool, get_vrf_context,
-    os2avi_uuid)
+    os2avi_uuid, delete_vsvip)
 from avi_lbaasv2.common.avi_transform import AviHelper
 from avi_lbaasv2.config import avi_config
 
@@ -113,6 +113,8 @@ class LoadBalancerManager(driver_base.BaseLoadBalancerManager):
                                                                vportid)
                 LOG.debug('deleted LB vip port %s', vportid)
 
+        avi_client = self.driver.client
+        delete_vsvip(lb, avi_client)
         # AV-35351: Can't determine how much time it would take to
         # delete all the associated ports for this load balancer. It
         # depends on types of VSes (SSL etc) and number of VSes.
