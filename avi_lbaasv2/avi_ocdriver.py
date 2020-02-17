@@ -269,6 +269,9 @@ class OpencontrailAviLoadbalancerDriver(
     @cc_trace
     def delete_loadbalancer(self, loadbalancer):
         lb = transform_loadbalancer_obj(self, loadbalancer['id'], loadbalancer)
+        if not lb:
+            self.log.warn("LB object not found in config DB")
+
         delete_vsvip(lb, self.client, contrail_lb=loadbalancer)
 
     @cc_trace
