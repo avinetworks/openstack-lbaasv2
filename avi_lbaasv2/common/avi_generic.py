@@ -358,10 +358,21 @@ def update_vsvip(os_lb, avi_client, avi_tenant_uuid, cloud, vsvip=None,
     return res
 
 
-def delete_vsvip(os_lb, avi_client):
-    vsvip_uuid = form_vsvip_uuid(os_lb.id)
-    avi_tenant_uuid = os2avi_uuid("tenant", os_lb.tenant_id)
-    avi_client.delete("vsvip", vsvip_uuid, avi_tenant_uuid)
+def delete_vsvip(os_lb, avi_client, contrail_lb=None):
+    vsvip_uuid = None
+    avi_tenant_uuid = None
+    if os_lb:
+        vsvip_uuid = form_vsvip_uuid(os_lb.id)
+        avi_tenant_uuid = os2avi_uuid("tenant", os_lb.tenant_id)
+    elif contrail_lb:
+        lb_id = contrail_lb.get('id', None)
+        tenant_id = contrail_lb.get('tenant_id', None)
+        if lb_id and tenant_id:
+            vsvip_uuid = form_vsvip_uuid(lb_id)
+            avi_tenant_uuid = os2avi_uuid("tenant", tenant_id)
+
+    if vsvip_uuid and avi_tenant_uuid:
+        avi_client.delete("vsvip", vsvip_uuid, avi_tenant_uuid)
 
 
 def get_vrf_context(subnet_uuid, cloud, avi_tenant_uuid, avi_client,
