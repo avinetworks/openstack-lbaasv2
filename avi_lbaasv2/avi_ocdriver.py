@@ -47,8 +47,11 @@ def cc_trace(f):
             res = f(self, *args, **kwargs)
             return res
         except Exception as e:
-            self.log.exception('ocavi %s', e)
-            raise e
+            self.log.exception('ocavi fn %s failed %s', f.__name__, e)
+            # Don't raise error - this might cause contrail-svc-monitor
+            # to crash
+            # raise e
+
     return f_trace
 
 
@@ -375,19 +378,17 @@ class OpencontrailAviLoadbalancerDriver(
     def delete_health_monitor(self, health_monitor, pool_id):
         self.delete_pool_health_monitor(health_monitor, pool_id)
 
+    @cc_trace
     def update_health_monitor3x(self, id, health_monitor):
         hm = transform_hm_obj(self, id, health_monitor)
         hm_update_avi_hm(self, None, hm)
 
+    @cc_trace
     def set_config_v2(self, lb_id):
-        try:
-            vmi_id = LoadbalancerSM.get(lb_id).virtual_machine_interface
-            vmi = VirtualMachineInterfaceSM.get(vmi_id)
-            fips = vmi.floating_ips
-            return str(fips)
-        except Exception as e:
-            self.log.exception("set_config_v2 failed: %s", e)
-            pass
+        vmi_id = LoadbalancerSM.get(lb_id).virtual_machine_interface
+        vmi = VirtualMachineInterfaceSM.get(vmi_id)
+        fips = vmi.floating_ips
+        return str(fips)
 
     # ignored APIs ###
 
