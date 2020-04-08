@@ -238,18 +238,25 @@ class AviHelper(object):
         avi_svr['enabled'] = (
             os_member.admin_state_up and os_pool.admin_state_up)
         avi_svr['hostname'] = os_member.address
-        if os_member.weight == 0:
-            # Note: When LBaaS member weight is set to 0, OpenStack expects
-            # that the member will not accept any new connections but keeps
-            # serving the existing connections. By disabling the server in Avi,
-            # the server will not receive any new connections, but it will wait
-            # for 1 min by default before closing existing connections. To wait
-            # for more time (or infinite time), user has to update the
-            # graceful_disable_timeout in Avi Pool.
-            avi_svr['enabled'] = False
+        weight = getattr(os_member, 'weight', None)
+        if isinstance(weight, int) and (0 <= weight <= 256):
+            if weight == 0:
+                # Note: When LBaaS member weight is set to 0, OpenStack expects
+                # that the member will not accept any new connections but keeps
+                # serving the existing connections. By disabling the
+                # server in Avi, the server will not receive any new
+                # connections, but it will wait for 1 min by default
+                # before closing existing connections. To wait for more
+                # time (or infinite time), user has to update the
+                # graceful_disable_timeout in Avi Pool.
+                avi_svr['enabled'] = False
 
-        # Convert LBaaS member weight [0..256] to Avi Server ratio [1..20]
-        avi_svr['ratio'] = (os_member.weight * 20) / 257 + 1
+            # Convert LBaaS member weight [0..256] to Avi Server ratio [1..20]
+            avi_svr['ratio'] = (weight * 20) / 257 + 1
+        elif weight is not None:
+            self.log.warning("Unexpected value(type) of weight %s(%s)",
+                             weight, type(weight))
+
         snwid = getattr(os_member, "subnet_id", "")
         avi_svr['subnet_uuid'] = snwid
         avi_svr['verify_network'] = True
