@@ -32,7 +32,7 @@ def update_loadbalancer_obj(driver, context, old_lb, lb):
     try:
         loadbalancer_update_avi_vsvip(driver, old_lb, lb)
     except Exception as e:
-        driver.log.exception('Could not update loadbalancer: %s, %s',
+        driver.log.exception('ocavi: Could not update loadbalancer: %s, %s',
                              lb, e)
         failed = True
 
@@ -49,7 +49,7 @@ def update_loadbalancer_obj(driver, context, old_lb, lb):
         try:
             listener_update_avi_vs(driver, context, listener, 'update')
         except Exception as e:
-            driver.log.exception('Could not update listener: %s, %s',
+            driver.log.exception('ocavi: Could not update listener: %s, %s',
                                  listener, e)
             failed = True
 
@@ -221,7 +221,7 @@ def update_avi_vs_pool(driver, avi_tenant_uuid, os_owner_id,
                      ignore_non_existent_object=(action == "delete"),
                      ignore_non_existent_tenant=(action == "delete"))
     except ObjectNotFound:
-        driver.log.exception("Avi VS doesn't exist: %s; data: %s; "
+        driver.log.exception("ocavi: Avi VS doesn't exist: %s; data: %s; "
                              "tenant: %s", avi_vs_uuid, data, avi_tenant_uuid)
     return
 
