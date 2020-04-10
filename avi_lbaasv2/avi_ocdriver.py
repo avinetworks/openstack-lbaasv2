@@ -230,7 +230,7 @@ class OpencontrailAviLoadbalancerDriver(
                                     verify=self.conf.cert_verify, log=self.log)
         except Exception as e:
             self.log.exception(
-                'Could not create session to Avi Controller: %s', e)
+                'ocavi: Could not create session to Avi Controller: %s', e)
         self.avi_helper = AviHelper(self.conf, self.log)
 
     # init

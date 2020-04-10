@@ -56,7 +56,7 @@ class AviHelper(object):
                                                   avi_type,
                                                   avi_tenant_uuid)
         except ObjectNotFound:
-            self.log.exception("App profile %s not found", avi_type)
+            self.log.exception("ocavi: App profile %s not found", avi_type)
             raise
         return avi_app_prof["url"]
 
@@ -72,7 +72,8 @@ class AviHelper(object):
                                                  profile_name,
                                                  avi_tenant_uuid)
         except ObjectNotFound:
-            self.log.exception("SSL profile not found: %s", profile_name)
+            self.log.exception("ocavi: SSL profile not found: %s",
+                               profile_name)
             raise
         return ssl_profile["url"]
 

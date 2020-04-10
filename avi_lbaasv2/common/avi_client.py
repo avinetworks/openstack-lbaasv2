@@ -30,7 +30,7 @@ class AviClient(object):
             self.avi_session.delete("%s/%s" % (resource_type, obj_uuid),
                                     tenant_uuid=avi_tenant_uuid).json()
         except ObjectNotFound as e:
-            self.log.exception("Object type %s uuid %s not found: %s",
+            self.log.exception("ocavi: Object type %s uuid %s not found: %s",
                                resource_type, obj_uuid, e)
             if not ignore_if_not_exists:
                 raise
@@ -39,8 +39,8 @@ class AviClient(object):
                     and e.rsp.status_code == 403
                     and "tenant uuid" in e.rsp.content.lower()
                     and "does not exist" in e.rsp.content.lower()):
-                self.log.exception("Tenant doesn't exist %s, when deleting "
-                                   "object type %s uuid %s: %s",
+                self.log.exception("ocavi: Tenant doesn't exist %s, when "
+                                   "deleting object type %s uuid %s: %s",
                                    avi_tenant_uuid, resource_type, obj_uuid, e)
             else:
                 raise
@@ -98,7 +98,8 @@ class AviClient(object):
                                          tenant_uuid=avi_tenant_uuid).json()
         except ObjectNotFound as e:
             if ignore_non_existent_object:
-                self.log.exception("Object type %s uuid %s not found: %s",
+                self.log.exception("ocavi: Object type %s uuid %s not "
+                                   "found: %s",
                                    resource_type, obj_uuid, e)
             else:
                 raise
@@ -107,14 +108,15 @@ class AviClient(object):
                     and e.rsp.status_code == 403
                     and "tenant uuid" in e.rsp.content.lower()
                     and "does not exist" in e.rsp.content.lower()):
-                self.log.exception("Tenant doesn't exist %s, when patching "
-                                   "object type %s uuid %s: %s",
+                self.log.exception("ocavi: Tenant doesn't exist %s, when "
+                                   "patching object type %s uuid %s: %s",
                                    avi_tenant_uuid, resource_type, obj_uuid, e)
             elif (ignore_existing_object
                     and e.rsp.status_code == 409
                     and "already exists" in e.rsp.content.lower()):
-                self.log.exception("Object already exists in tenant %s, when "
-                                   "patching object type %s uuid %s: %s",
+                self.log.exception("ocavi: Object already exists in "
+                                   "tenant %s, when patching object "
+                                   "type %s uuid %s: %s",
                                    avi_tenant_uuid, resource_type, obj_uuid, e)
             else:
                 raise
