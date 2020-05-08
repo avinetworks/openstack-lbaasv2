@@ -515,12 +515,40 @@ class AviHelper(object):
     def get_avi_vsvip(self, os_lb, avi_client, avi_tenant_uuid,
                       vrf_context_ref=None):
         vsvip_uuid = form_vsvip_uuid(os_lb.id)
+        vsvip = None
         try:
             vsvip = avi_client.get("vsvip", vsvip_uuid, avi_tenant_uuid)
+            return vsvip
         except ObjectNotFound:
-            self.log.warn("VsVip %s not found; creating", vsvip_uuid)
-            update_vsvip(os_lb, avi_client, avi_tenant_uuid, self.avicfg.cloud,
-                         vrf_context_ref=vrf_context_ref)
-            vsvip = avi_client.get("vsvip", vsvip_uuid, avi_tenant_uuid)
+            self.log.warn("VsVip %s not found", vsvip_uuid)
+
+        # Try vsvip from existing listeners
+        listeners = getattr(os_lb, 'loadbalancer_listeners', [])
+        if listeners:
+            self.log.info("Trying vsvip from existing listeners %s", listeners)
+            for ll_id in listeners:
+                vs = None
+                try:
+                    vs_uuid = os2avi_uuid("virtualservice", ll_id)
+                    vs = avi_client.get("virtualservice", vs_uuid,
+                                        avi_tenant_uuid)
+                except ObjectNotFound:
+                    self.log.warn("VirtualService %s not found", vs_uuid)
+                    continue
+
+                vsvip_uuid = vs['vsvip_ref'].split("/")[-1]
+                try:
+                    vsvip = avi_client.get("vsvip", vsvip_uuid,
+                                           avi_tenant_uuid)
+                    self.log.info("Found vsvip %s for lb %s",
+                                  vsvip['uuid'], os_lb.id)
+                    return vsvip
+                except ObjectNotFound:
+                    self.log.warn("VsVip %s not found", vsvip_uuid)
+
+        self.log.info("Creating vsvip for lb %s", os_lb.id)
+        update_vsvip(os_lb, avi_client, avi_tenant_uuid, self.avicfg.cloud,
+                     vrf_context_ref=vrf_context_ref)
+        vsvip = avi_client.get("vsvip", vsvip_uuid, avi_tenant_uuid)
 
         return vsvip
