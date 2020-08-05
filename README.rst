@@ -1,4 +1,11 @@
 ##################
+Deprecation Note
+##################
+
+Starting from Avi release 20.1.1, the Avi LBaaSv2 Driver has been deprecated.
+
+
+##################
 Avi LBaaSv2 Driver
 ##################
 
